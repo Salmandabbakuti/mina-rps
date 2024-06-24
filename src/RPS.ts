@@ -33,13 +33,13 @@ export class RockPaperScissors extends SmartContract {
   }
 
   @method async joinGame(player: PublicKey) {
-    if (this.gameActive.get().equals(Field(1))) {
+    Circuit.if (this.gameActive.get().equals(Field(1))) {
       throw new Error('Game is already active.');
     }
 
-    if (this.player1.get().equals(PublicKey.empty())) {
+    Circuit.if (this.player1.get().equals(PublicKey.empty())) {
       this.player1.set(player);
-    } else if (this.player2.get().equals(PublicKey.empty())) {
+    } else Circuit.if (this.player2.get().equals(PublicKey.empty())) {
       this.player2.set(player);
       this.gameActive.set(Field(1)); // Activate the game when both players have joined
     } else {
@@ -48,20 +48,20 @@ export class RockPaperScissors extends SmartContract {
   }
 
   @method async makeChoice(player: PublicKey, choice: Field) {
-    if (!this.gameActive.get().equals(Field(1))) {
+    Circuit.if (!this.gameActive.get().equals(Field(1))) {
       throw new Error('Game is not active.');
     }
 
-    if (
+    Circuit.if (
       !this.player1.get().equals(player) &&
       !this.player2.get().equals(player)
     ) {
       throw new Error('Player is not part of this game.');
     }
 
-    if (player.equals(this.player1.get())) {
+    Circuit.if (player.equals(this.player1.get())) {
       this.player1Choice.set(choice);
-    } else if (player.equals(this.player2.get())) {
+    } else Circuit.if (player.equals(this.player2.get())) {
       this.player2Choice.set(choice);
     } else {
       throw new Error('Player is not part of this game.');
@@ -69,11 +69,11 @@ export class RockPaperScissors extends SmartContract {
   }
 
   @method async revealChoices() {
-    if (!this.gameActive.get().equals(Field(1))) {
+    Circuit.if (!this.gameActive.get().equals(Field(1))) {
       throw new Error('Game is not active.');
     }
 
-    if (
+    Circuit.if (
       this.player1Choice.get().equals(Field(0)) ||
       this.player2Choice.get().equals(Field(0))
     ) {
@@ -84,9 +84,9 @@ export class RockPaperScissors extends SmartContract {
     const choice2 = this.player2Choice.get();
 
     // Rock Paper Scissors Logic
-    if (choice1.equals(choice2)) {
+    Circuit.if (choice1.equals(choice2)) {
       this.winner.set(PublicKey.empty()); // Tie
-    } else if (
+    } else Circuit.if (
       (choice1.equals(Field(RPS.Rock)) &&
         choice2.equals(Field(RPS.Scissors))) ||
       (choice1.equals(Field(RPS.Paper)) && choice2.equals(Field(RPS.Rock))) ||
