@@ -1,3 +1,3 @@
-import { Add } from './Add.js';
+import { RockPaperScissors } from './RPS.js';
 
-export { Add };
+export { RockPaperScissors };

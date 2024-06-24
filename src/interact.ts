@@ -1,20 +1,6 @@
-/**
- * This script can be used to interact with the Add contract, after deploying it.
- *
- * We call the update() method on the contract, create a proof and send it to the chain.
- * The endpoint that we interact with is read from your config.json.
- *
- * This simulates a user interacting with the zkApp from a browser, except that here, sending the transaction happens
- * from the script and we're using your pre-funded zkApp account to pay the transaction fee. In a real web app, the user's wallet
- * would send the transaction and pay the fee.
- *
- * To run locally:
- * Build the project: `$ npm run build`
- * Run with node:     `$ node build/src/interact.js <deployAlias>`.
- */
 import fs from 'fs/promises';
-import { Mina, NetworkId, PrivateKey } from 'o1js';
-import { Add } from './Add.js';
+import { Mina, NetworkId, PrivateKey, PublicKey } from 'o1js';
+import { RockPaperScissors } from './RPS.js';
 
 // check command line arg
 let deployAlias = process.argv[2];
@@ -66,11 +52,14 @@ const fee = Number(config.fee) * 1e9; // in nanomina (1 billion = 1.0 mina)
 Mina.setActiveInstance(Network);
 let feepayerAddress = feepayerKey.toPublicKey();
 let zkAppAddress = zkAppKey.toPublicKey();
-let zkApp = new Add(zkAppAddress);
+let zkApp = new RockPaperScissors(zkAppAddress);
 
 // compile the contract to create prover keys
 console.log('compile the contract...');
-await Add.compile();
+await RockPaperScissors.compile();
+
+const player1 = PublicKey.fromBase58('B62qoNQ6Q');
+const player2 = PublicKey.fromBase58('B62qoNQ6Q');
 
 try {
   // call update() and send transaction
@@ -78,7 +67,8 @@ try {
   let tx = await Mina.transaction(
     { sender: feepayerAddress, fee },
     async () => {
-      await zkApp.update();
+      await zkApp.joinGame(player1);
+      await zkApp.joinGame(player2);
     }
   );
   await tx.prove();
